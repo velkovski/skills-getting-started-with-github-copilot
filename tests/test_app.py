@@ -16,15 +16,18 @@ def reset_activity_participants():
 
 
 def test_unregister_existing_participant(reset_activity_participants):
+    # Arrange
     activity_name = "Chess Club"
     email = "student@mergington.edu"
     activities[activity_name]["participants"].append(email)
 
+    # Act
     response = client.delete(
         "/activities/Chess%20Club/participants",
         params={"email": email},
     )
 
+    # Assert
     assert response.status_code == 200
     assert response.json() == {
         "message": f"Unregistered {email} from {activity_name}"
@@ -33,12 +36,19 @@ def test_unregister_existing_participant(reset_activity_participants):
 
 
 def test_unregister_missing_participant(reset_activity_participants):
+    # Arrange
+    activity_name = "Chess Club"
+    email = "missing@mergington.edu"
+
+    # Act
     response = client.delete(
         "/activities/Chess%20Club/participants",
-        params={"email": "missing@mergington.edu"},
+        params={"email": email},
     )
 
+    # Assert
     assert response.status_code == 404
     assert response.json() == {
         "detail": "Student is not registered for this activity"
     }
+    assert activities[activity_name]["participants"] == []
